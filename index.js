@@ -2,12 +2,15 @@ const express = require('express')
 const app = express()
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
-const companyRoute = require("./routes/companyRoute")
-const userRoute = require("./routes/userRoute")
-const jobPostRoute = require("./routes/jobPostRoute")
 const jwt = require('jsonwebtoken');
 const auth = require('./middleware/authenticate');
 const cookieParser = require("cookie-parser");
+
+// Routes
+const companyRoute = require("./routes/companyRoute")
+const userRoute = require("./routes/userRoute")
+const jobPostRoute = require("./routes/jobPostRoute")
+const applicationRoute = require("./routes/applicationRoute")
 
 // Middleware
 app.use(express.json());
@@ -21,7 +24,8 @@ app.listen(3000, () => {
 
 app.use("/api/", userRoute)
 app.use("/api/companies", companyRoute)
-app.use("/api/jobPost", jobPostRoute)
+app.use("/api/jobPosts", jobPostRoute)
+app.use("/api/applications", applicationRoute)
 
 app.get('/', auth.authenticateToken, (req, res) => {
     res.send("Hello from Node API updateds");

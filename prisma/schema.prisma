@@ -31,7 +31,8 @@ model JobPost {
   company      Company @relation(fields: [companyId], references: [id])
   companyId    String @db.ObjectId
   salary       Int?
-  requirements String
+  type         JobType
+  experience   Experience
   Applications Application[]
   createdAt    DateTime @default(now())
 }
@@ -57,4 +58,17 @@ enum Role {
   USER
   COMPANY
   ADMIN
+}
+
+enum JobType {
+  Remote
+  Hybrid
+  OnSite
+}
+
+enum Experience {
+  Internship
+  Junior
+  Mid
+  Senior
 }

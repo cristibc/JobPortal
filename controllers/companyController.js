@@ -4,7 +4,10 @@ const prisma = new PrismaClient()
 const createCompany = async (req, res) => {
         try {
             const company = await prisma.company.create({
-                data: req.body
+                data: {
+                    name: req.body.name,
+                    description: req.body.description
+                }
               });
             res.status(200).json(company);
         } catch (error) {
@@ -39,7 +42,10 @@ const updateCompany = async (req, res) => {
     try {
         const { id } = req.params
         const company = await prisma.company.update({
-            data: req.body,
+            data: {
+                name: req.body.name,
+                description: req.body.description
+            },
             where: {
                 id: id,
             }
