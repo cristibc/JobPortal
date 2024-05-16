@@ -5,18 +5,18 @@ const prisma = new PrismaClient()
 const jwt = require('jsonwebtoken');
 const auth = require('./middleware/authenticate');
 const cookieParser = require("cookie-parser");
-
-// Routes
-const companyRoute = require("./routes/companyRoute")
-const userRoute = require("./routes/userRoute")
-const jobPostRoute = require("./routes/jobPostRoute")
-const applicationRoute = require("./routes/applicationRoute")
+const Joi = require('joi').extend(require('@joi/date'));
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({extended: false}))
 app.use(cookieParser());
 
+// Routes
+const companyRoute = require("./routes/companyRoute")
+const userRoute = require("./routes/userRoute")
+const jobPostRoute = require("./routes/jobPostRoute")
+const applicationRoute = require("./routes/applicationRoute");
 
 app.listen(3000, () => {
     console.log("Server is running on port 3000")

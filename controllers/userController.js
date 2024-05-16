@@ -24,8 +24,8 @@ async function register(req, res) {
       res
         .status(400)
         .json({ message: "User already exists with given username or email" });
-    }
-    res.status(500).json({ message: error.message });
+    } else {
+    res.status(500).json({ message: error.message }); }
   }
 }
 

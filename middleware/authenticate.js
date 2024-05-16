@@ -16,7 +16,7 @@ function authenticateToken(req, res, next) {
     return next();
   } catch (error) {
     if (!refreshToken) {
-        return res.sendStatus(401).json({ message: "Access denied! Refresh token was not provided"});
+        return res.status(401).json({ message: "Access denied! Refresh token was not provided"});
     }
 
     try {

@@ -9,6 +9,7 @@ router.put('/:id', jobPostController.updateJobPost)
 router.delete('/:id', jobPostController.deleteJobPost)
 router.post('/getJobPostsMatching', jobPostController.getJobPostsMatching)
 router.post('/getJobPostsMatchingWithMinimumSalary', jobPostController.getJobPostsMatchingWithMinimumSalary)
+router.post('/sortJobPostsBySalary', jobPostController.sortJobPostsBySalary)
 
 
 module.exports = router;
