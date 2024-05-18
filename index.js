@@ -27,8 +27,8 @@ app.use("/api/companies", companyRoute)
 app.use("/api/jobPosts", jobPostRoute)
 app.use("/api/applications", applicationRoute)
 
-app.get('/', auth.authenticateToken, (req, res) => {
-    res.send("Hello from Node API updateds");
+app.get('/', auth.authenticateToken('USER'), (req, res) => {
+    res.status(200).json({ message: req.user});
 });
 
 async function main() {

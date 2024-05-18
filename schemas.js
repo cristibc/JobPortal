@@ -12,7 +12,7 @@ const registerSchema = Joi.object({
         .required(),
 
     role: Joi.string()
-        .valid('GUEST', 'USER', 'COMPANY', 'ADMIN'),
+        .valid('USER', 'COMPANY'),
 
     password: Joi.string()
         .min(3)

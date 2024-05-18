@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 const bcrypt = require("bcrypt");
 const auth = require("../middleware/authenticate");
 const jwt = require("jsonwebtoken");
-const fs = require('fs');
+const fs = require('fs').promises;
 
 const saltRounds = 10;
 
@@ -15,6 +15,32 @@ async function register(req, res) {
         username: req.body.username,
         email: req.body.email,
         password: hashedPassword,
+        role: req.body.role,
+      },
+    });
+    res.status(200).json(newUser);
+    // res.status(201).json({ message: "User registered successfully" });
+  } catch (error) {
+    if (error.code === "P2002") {
+      res
+        .status(400)
+        .json({ message: "User already exists with given username or email" });
+    } else {
+      res.status(500).json({ message: error.message });
+    }
+  }
+}
+
+
+async function registerAsCompany(req, res) {
+  const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+  try {
+    const newUser = await prisma.user.create({
+      data: {
+        username: req.body.username,
+        email: req.body.email,
+        password: hashedPassword,
+        role: 'COMPANY',
       },
     });
     res.status(200).json(newUser);
@@ -182,24 +208,33 @@ const deleteUser = async (req, res) => {
 
 const addImageOrCv = async (req, res) => {
   try {
-    const { id } = req.params;
     imagePath = undefined;
     cvPath = undefined;
 
     if (req.files['image']) {
      imagePath = req.files['image'][0].path;
-     console.log(imagePath)
     }
     if (req.files['cv']) {
      cvPath = req.files['cv'][0].path;
-     console.log(cvPath)
     }
 
-    // const checkUser = await prisma.user.findUnique({
-    //   where: {
-    //     id: id,
-    //   }
-    // })
+    const checkUser = await prisma.user.findUnique({
+      where: {
+        id: req.user.id,
+      }
+    })
+
+    if (!checkUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (imagePath && checkUser.image){
+      await deleteFile(checkUser.image)
+    }
+
+    if (cvPath && checkUser.cv){
+      await deleteFile(checkUser.cv)
+    }
 
     const user = await prisma.user.update({
       data: {
@@ -207,7 +242,7 @@ const addImageOrCv = async (req, res) => {
         cv: cvPath || undefined,
       },
       where: {
-        id: id,
+        id: req.user.id,
       },
     });
 
@@ -216,7 +251,7 @@ const addImageOrCv = async (req, res) => {
     }
     const updatedUser = await prisma.user.findUnique({
       where: {
-        id: id,
+        id: req.user.id,
       },
     });
     res.status(200).json(updatedUser);
@@ -224,6 +259,14 @@ const addImageOrCv = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+async function deleteFile(filePath) {
+  try {
+    await fs.unlink(filePath);
+  } catch (err) {
+    console.error(err);
+  }
+}
 
 module.exports = {
   register,

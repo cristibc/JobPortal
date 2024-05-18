@@ -22,6 +22,7 @@ model User {
   image         String?
   cv            String?
   applications  Application[]
+  company       Company?
   createdAt     DateTime @default(now())
 }
 
@@ -35,6 +36,7 @@ model JobPost {
   salary       Int?
   type         JobType
   experience   Experience
+  status       JobPostStatus @default(Open)
   Applications Application[]
   createdAt    DateTime @default(now())
 }
@@ -44,6 +46,8 @@ model Company {
   name         String @unique
   description  String
   jobPosts     JobPost[]
+  createdBy    User @relation(fields: [createdById], references: [id])
+  createdById  String @unique @db.ObjectId
   createdAt    DateTime @default(now())
 }
 
@@ -81,4 +85,9 @@ enum JobStatus {
   Sent
   Rejected
   Accepted
+}
+
+enum JobPostStatus {
+  Open
+  Closed
 }

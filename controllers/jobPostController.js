@@ -1,6 +1,29 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+const addOwnJobPost = async (req, res) => {
+  try {
+    const jobPost = await prisma.jobPost.create({
+      data: {
+        title: req.body.title,
+        description: req.body.description,
+        location: req.body.location,
+        salary: req.body.salary,
+        experience: req.body.experience,
+        type: req.body.type,
+        company: {
+          connect: {
+            createdById: req.user.id,
+          },
+        },
+      },
+    });
+    res.status(200).json(jobPost);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const createJobPost = async (req, res) => {
   try {
     const jobPost = await prisma.jobPost.create({
@@ -13,7 +36,7 @@ const createJobPost = async (req, res) => {
         type: req.body.type,
         company: {
           connect: {
-            name: req.body.company,
+            name: req.body.companyName,
           },
         },
       },
@@ -90,11 +113,72 @@ const updateJobPost = async (req, res) => {
   }
 };
 
+const updateOwnJobPost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const jobPost = await prisma.jobPost.update({
+      data: {
+        title: req.body.title,
+        description: req.body.description,
+        location: req.body.location,
+        salary: req.body.salary,
+        experience: req.body.experience,
+        type: req.body.type,
+        company: {
+          connect: {
+            createdById: req.user.id,
+          },
+        },
+      },
+      where: {
+        id: id,
+        company: {
+          createdById: req.user.id,
+        }
+      },
+    });
+
+    if (!jobPost) {
+      return res.status(404).json({ message: "Job post not found" });
+    }
+    const updatedJobPost = await prisma.jobPost.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    res.status(200).json(updatedJobPost);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const deleteJobPost = async (req, res) => {
   try {
     const { id } = req.params;
     const jobPost = await prisma.jobPost.delete({
       where: {
+        id: id,
+      },
+    });
+
+    if (!jobPost) {
+      return res.status(404).json({ message: "Job post not found" });
+    }
+
+    res.status(200).json({ message: "Job post deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const deleteOwnJobPost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const jobPost = await prisma.jobPost.delete({
+      where: {
+        company: {
+          createdById: req.user.id,
+        },
         id: id,
       },
     });
@@ -209,10 +293,13 @@ const sortJobPostsBySalary = async (req, res) => {
 
 module.exports = {
   createJobPost,
+  addOwnJobPost,
   getJobPost,
   getJobPosts,
   updateJobPost,
+  updateOwnJobPost,
   deleteJobPost,
+  deleteOwnJobPost,
   getJobPostsMatching,
   getJobPostsMatchingWithMinimumSalary,
   sortJobPostsBySalary,

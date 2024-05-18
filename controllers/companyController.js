@@ -6,13 +6,29 @@ const createCompany = async (req, res) => {
             const company = await prisma.company.create({
                 data: {
                     name: req.body.name,
-                    description: req.body.description
+                    description: req.body.description,
+                    createdById: req.user.id,
                 }
               });
             res.status(200).json(company);
         } catch (error) {
             res.status(500).json({message: error.message});
         }
+}
+
+const addCompany = async (req, res) => {
+    try {
+        const company = await prisma.company.create({
+            data: {
+                name: req.body.name,
+                description: req.body.description,
+                createdById: req.body.createdById,
+            }
+          });
+        res.status(200).json(company);
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
 }
 
 const getCompanies = async (req, res) => {
@@ -65,6 +81,33 @@ const updateCompany = async (req, res) => {
     }
 }
 
+
+const updateOwnCompany = async (req, res) => {
+    try {
+        const company = await prisma.company.update({
+            data: {
+                name: req.body.name,
+                description: req.body.description
+            },
+            where: {
+                createdById: req.user.id,
+            }
+        })
+
+        if (!company) {
+            return res.status(404).json({message: "Company not found"})
+        }
+        const updatedCompany = await prisma.company.findUnique({
+            where: {
+                createdById: req.user.id,
+            }
+        });
+        res.status(200).json(updatedCompany);
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+}
+
 const deleteCompany = async (req, res) => {
     try {
         const { id } = req.params
@@ -89,5 +132,7 @@ module.exports = {
     getCompanies,
     getCompany,
     updateCompany,
-    deleteCompany
+    deleteCompany,
+    addCompany,
+    updateOwnCompany
 };

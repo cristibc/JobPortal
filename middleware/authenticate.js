@@ -1,33 +1,68 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-function authenticateToken(req, res, next) {
-  const accessToken = req.headers['authorization'];
-  const refreshToken = req.cookies['refresh_token']
-  
-  if (accessToken == null) return res.sendStatus(401);
-    if (!accessToken && !refreshToken) {
-        return res.status(401).json({ message: "Access Denied! Access and refresh tokens not provided"})
+function authenticateToken(allowedRoles = []) {
+  return (req, res, next) => {
+    const accessToken = req.headers["authorization"];
+    const refreshToken = req.cookies["refresh_token"];
+
+    if (!allowedRoles.length) {
+      return next();
     }
 
-  try {
-    const data = jwt.verify(accessToken, process.env.JWT_SECRET);
-    req.user = data.user;
-    return next();
-  } catch (error) {
-    if (!refreshToken) {
-        return res.status(401).json({ message: "Access denied! Refresh token was not provided"});
+    if (accessToken == null)
+      return res
+        .status(403)
+        .json({ message: "Access Denied! Access token was not provided." });
+    if (!accessToken && !refreshToken) {
+      return res.status(403).json({
+        message: "Access Denied! Access and refresh tokens not provided",
+      });
     }
 
     try {
-        const data = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-        const accessToken = jwt.sign({ user: data.user }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const data = jwt.verify(accessToken, process.env.JWT_SECRET);
+      req.user = data.user;
 
-        res.cookie('refresh_token', refreshToken).header('Authorization', accessToken).send(data.user);
+      if (allowedRoles.length && !allowedRoles.includes(req.user.role)) {
+        return res.status(403).json({
+          message: "Access Denied! Your role does not match the required one",
+        });
+      }
+
+      return next();
     } catch (error) {
-        return res.status(400).json({ message: "Invalid token provided"});
+      if (!refreshToken) {
+        return res
+          .status(403)
+          .json({ message: "Access denied! Refresh token was not provided" });
+      }
+
+      try {
+        const data = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        const accessToken = jwt.sign(
+          { user: data.user },
+          process.env.JWT_SECRET,
+          { expiresIn: "1h" }
+        );
+
+        res
+          .cookie("refresh_token", refreshToken)
+          .header("Authorization", accessToken);
+        req.user = data.user;
+
+        if (allowedRoles.length && !allowedRoles.includes(req.user.role)) {
+          return res.status(403).json({
+            message: "Access Denied! Your role does not match the required one",
+          });
+        }
+
+        return next();
+      } catch (error) {
+        return res.status(400).json({ message: "Invalid token provided" });
+      }
     }
-  }
+  };
 }
 
 function generateToken(user) {

@@ -1,15 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const jobPostController = require('../controllers/jobPostController');
+const auth = require('../middleware/authenticate');
 
-router.get('/', jobPostController.getJobPosts);
-router.post('/', jobPostController.createJobPost);
-router.get('/:id', jobPostController.getJobPost)
-router.put('/:id', jobPostController.updateJobPost)
-router.delete('/:id', jobPostController.deleteJobPost)
-router.post('/getJobPostsMatching', jobPostController.getJobPostsMatching)
-router.post('/getJobPostsMatchingWithMinimumSalary', jobPostController.getJobPostsMatchingWithMinimumSalary)
-router.post('/sortJobPostsBySalary', jobPostController.sortJobPostsBySalary)
-
+router.get('/',auth.authenticateToken(), jobPostController.getJobPosts);
+router.post('/', auth.authenticateToken('ADMIN'), jobPostController.createJobPost);
+router.post('/addOwnJobPost', auth.authenticateToken('COMPANY'), jobPostController.addOwnJobPost);
+router.get('/getJobPost/:id', auth.authenticateToken(), jobPostController.getJobPost)
+router.put('/updateJobPost/:id', auth.authenticateToken(['ADMIN', 'COMPANY']), jobPostController.updateJobPost)
+router.put('/updateOwnJobPost/:id', auth.authenticateToken('COMPANY'), jobPostController.updateOwnJobPost)
+router.delete('/deleteJobPost/:id', auth.authenticateToken('ADMIN'), jobPostController.deleteJobPost)
+router.delete('/deleteOwnJobPost/:id', auth.authenticateToken('COMPANY'), jobPostController.deleteOwnJobPost)
+router.post('/getJobPostsMatching', auth.authenticateToken(), jobPostController.getJobPostsMatching)
+router.post('/getJobPostsMatchingWithMinimumSalary', auth.authenticateToken(), jobPostController.getJobPostsMatchingWithMinimumSalary)
+router.post('/sortJobPostsBySalary', auth.authenticateToken(), jobPostController.sortJobPostsBySalary)
 
 module.exports = router;
