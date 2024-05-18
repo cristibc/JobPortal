@@ -3,17 +3,17 @@ const prisma = new PrismaClient();
 const bcrypt = require("bcrypt");
 const auth = require("../middleware/authenticate");
 const jwt = require("jsonwebtoken");
+const fs = require('fs');
 
 const saltRounds = 10;
 
 async function register(req, res) {
-  const { username, email, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
   try {
     const newUser = await prisma.user.create({
       data: {
-        username: username,
-        email: email,
+        username: req.body.username,
+        email: req.body.email,
         password: hashedPassword,
       },
     });
@@ -25,7 +25,8 @@ async function register(req, res) {
         .status(400)
         .json({ message: "User already exists with given username or email" });
     } else {
-    res.status(500).json({ message: error.message }); }
+      res.status(500).json({ message: error.message });
+    }
   }
 }
 
@@ -92,6 +93,8 @@ const createUser = async (req, res) => {
         username: req.body.username,
         email: req.body.email,
         password: hashedPassword,
+        image: req.body.image || undefined,
+        cv: req.body.cv || undefined,
         role: req.body.role,
       },
     });
@@ -125,15 +128,19 @@ const getUser = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-  const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+  if (req.body.password) {
+    hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+  } else {
+    hashedPassword = undefined;
+  }
   try {
     const { id } = req.params;
     const user = await prisma.user.update({
       data: {
-        username: req.body.username,
-        email: req.body.email,
-        password: hashedPassword,
-        role: req.body.role,
+        username: req.body.username || undefined,
+        email: req.body.email || undefined,
+        password: hashedPassword || undefined,
+        role: req.body.role || undefined,
       },
       where: {
         id: id,
@@ -173,6 +180,51 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const addImageOrCv = async (req, res) => {
+  try {
+    const { id } = req.params;
+    imagePath = undefined;
+    cvPath = undefined;
+
+    if (req.files['image']) {
+     imagePath = req.files['image'][0].path;
+     console.log(imagePath)
+    }
+    if (req.files['cv']) {
+     cvPath = req.files['cv'][0].path;
+     console.log(cvPath)
+    }
+
+    // const checkUser = await prisma.user.findUnique({
+    //   where: {
+    //     id: id,
+    //   }
+    // })
+
+    const user = await prisma.user.update({
+      data: {
+        image: imagePath || undefined,
+        cv: cvPath || undefined,
+      },
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const updatedUser = await prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -183,4 +235,5 @@ module.exports = {
   getUsers,
   updateUser,
   deleteUser,
+  addImageOrCv,
 };

@@ -109,6 +109,26 @@ const deleteApplication = async (req, res) => {
     }
 }
 
+const getApplicationsForJobPost = async (req, res) => {
+    try {
+        const applications = await prisma.application.findMany({
+            where: {
+                jobPostId: {
+                    equals: req.body.jobPostId,
+                },
+            },
+            include: {
+                // Job Post info shouldn't be needed
+                // jobPost: true,
+                user: true
+            },
+        });
+        res.status(200).json(applications);
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+}
+
 
 
 module.exports = {
@@ -116,5 +136,6 @@ module.exports = {
     getApplication,
     getApplications,
     updateApplication,
-    deleteApplication
+    deleteApplication,
+    getApplicationsForJobPost
 };

@@ -23,6 +23,26 @@ const registerSchema = Joi.object({
     createdAt: Joi.date().format('YYYY-MM-DDTHH:mm:ss.SSSZZ'),
 });
 
+const updateUserSchema = Joi.object({
+    username: Joi.string()
+        .alphanum()
+        .min(3)
+        .max(30),
+
+    email: Joi.string()
+        .email(),
+
+    role: Joi.string()
+        .valid('GUEST', 'USER', 'COMPANY', 'ADMIN'),
+
+    password: Joi.string()
+        .min(3)
+        .max(72),
+
+    // 2024-05-12T22:15:46.506+00:00
+    createdAt: Joi.date().format('YYYY-MM-DDTHH:mm:ss.SSSZZ'),
+});
+
 const loginSchema = Joi.object({
     username: Joi.string()
         .alphanum()
@@ -49,14 +69,6 @@ const companySchema = Joi.object({
         .max(250)
         .required(),
 
-    role: Joi.string()
-        .valid('GUEST', 'USER', 'COMPANY', 'ADMIN'),
-
-    password: Joi.string()
-        .min(3)
-        .max(72)
-        .required(),
-
     // 2024-05-12T22:15:46.506+00:00
     createdAt: Joi.date().format('YYYY-MM-DDTHH:mm:ss.SSSZZ'),
 });
@@ -64,4 +76,6 @@ const companySchema = Joi.object({
 module.exports = {
     'register': registerSchema,
     'login': loginSchema,
+    'addCompany': companySchema,
+    'updateUser': updateUserSchema,
 }
