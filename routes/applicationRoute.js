@@ -286,7 +286,7 @@ router.post('/acceptApplicationsForJobPost', auth.authenticateToken('COMPANY'), 
  *     responses:
  *       200:
  *         description: A list of applications
- *       401:
+ *       403:
  *         description: Unauthorized
  */
 router.get('/getPage/:page/:countPerPage', auth.authenticateToken(['ADMIN']), applicationController.getApplicationsByPageAndCount);
