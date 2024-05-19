@@ -10,5 +10,5 @@ NodeJS project that implements a REST API for a LinkedIn-like job posting and ap
 
 ### Database Schema
 <p align="center">
-<img src="/docs/database.png"/>
+<img src="/docs/database.png" height="300"/>
 </p>
