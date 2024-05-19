@@ -2,10 +2,44 @@ const express = require('express')
 const app = express()
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
-const jwt = require('jsonwebtoken');
 const auth = require('./middleware/authenticate');
 const cookieParser = require("cookie-parser");
-const Joi = require('joi').extend(require('@joi/date'));
+const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Your API Title",
+      version: "1.0.0",
+      description: "Your API Description",
+    },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
+  },
+  apis: ["./routes/*.js"],
+};
+
+const swaggerSpec = swaggerJSDoc(options);
+
+function setupSwagger(app) {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+}
+
+module.exports = setupSwagger;
 
 // Middleware
 app.use(express.json());
@@ -17,6 +51,11 @@ const companyRoute = require("./routes/companyRoute")
 const userRoute = require("./routes/userRoute")
 const jobPostRoute = require("./routes/jobPostRoute")
 const applicationRoute = require("./routes/applicationRoute");
+
+// Swagger
+
+setupSwagger(app); // Setup Swagger documentation
+
 
 app.listen(3000, () => {
     console.log("Server is running on port 3000")

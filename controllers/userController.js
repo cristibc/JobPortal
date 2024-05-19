@@ -31,31 +31,6 @@ async function register(req, res) {
   }
 }
 
-
-async function registerAsCompany(req, res) {
-  const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
-  try {
-    const newUser = await prisma.user.create({
-      data: {
-        username: req.body.username,
-        email: req.body.email,
-        password: hashedPassword,
-        role: 'COMPANY',
-      },
-    });
-    res.status(200).json(newUser);
-    // res.status(201).json({ message: "User registered successfully" });
-  } catch (error) {
-    if (error.code === "P2002") {
-      res
-        .status(400)
-        .json({ message: "User already exists with given username or email" });
-    } else {
-      res.status(500).json({ message: error.message });
-    }
-  }
-}
-
 async function login(req, res) {
   const { username, password } = req.body;
   try {

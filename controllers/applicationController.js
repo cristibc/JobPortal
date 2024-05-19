@@ -219,6 +219,12 @@ const acceptApplicationsForJobPost = async (req, res) => {
             jobPostId: {
               equals: req.body.jobPostId,
             },
+            jobPost:
+            {
+              company: {
+                createdById: req.user.id,
+              },
+            },
           },
           data: {
             status: "Accepted",
@@ -232,6 +238,12 @@ const acceptApplicationsForJobPost = async (req, res) => {
             jobPostId: {
               equals: req.body.jobPostId,
             },
+            jobPost:
+            {
+              company: {
+                createdById: req.user.id,
+              },
+            },
           },
           data: {
             status: "Rejected",
@@ -243,6 +255,12 @@ const acceptApplicationsForJobPost = async (req, res) => {
           },
           where: {
             id: req.body.jobPostId,
+          },
+          jobPost:
+          {
+            company: {
+              createdById: req.user.id,
+            },
           },
         }),
       ]);
