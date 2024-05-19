@@ -13,14 +13,14 @@ NodeJS project that implements a REST API for a LinkedIn-like job posting and ap
 
 1. Clone project locally
 2. Cd into directory and run ```npm install``` to install dependencies
-3. Create .env file with the properties:
+3. Create .env file in root directory with the properties:
 ```
 DATABASE_URL="yourMongoDBConnectString"
 JWT_SECRET=<RandomStringSecret>
 JWT_REFRESH_SECRET=<AnotherRandomStringSecret>
 ```
-4. Run ```npx prisma generate && npm prisma db push``` to generate the database
-5. Run ```npm run dev``` to start up the project, navigate to \<URL>:3000/api-docs for the swagger documentation and further endpoint testing
+4. Run ```npx prisma generate && npx prisma db push``` to generate the database
+5. Run ```npm run dev``` to start up the application, navigate to \<URL>:3000/api-docs for the swagger documentation and further endpoint testing
 
 ### Database Schema
 <p align="center">
