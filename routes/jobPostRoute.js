@@ -386,4 +386,39 @@ router.post(
   jobPostController.sortJobPostsBySalary
 );
 
+/**
+ * @swagger
+ * /api/jobPosts/getJobPostsByPageAndCount/{page}/{countPerPage}:
+ *   get:
+ *     summary: Retrieve Job Posts by page and number of results per page
+ *     tags: [JobPosts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *         required: true
+ *         description: Page number
+ *       - in: path
+ *         name: countPerPage
+ *         schema:
+ *           type: integer
+ *           example: 10
+ *         required: true
+ *         description: Number of job posts per page
+ *     responses:
+ *       200:
+ *         description: A list of jobs posts
+ *       403:
+ *         description: Unauthorized
+ */
+router.get(
+    "/getJobPostsByPageAndCount/:page/:countPerPage",
+    auth.authenticateToken(),
+    jobPostController.getJobPostsByPageAndCount
+  );
+
 module.exports = router;

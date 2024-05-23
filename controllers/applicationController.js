@@ -320,7 +320,7 @@ const getApplicationsByPageAndCount = async (req, res) => {
   countPerPageNumber = Number(countPerPage);
   try {
     const applications = await prisma.application.findMany({
-      skip: countPerPageNumber * pageNumber,
+      skip: countPerPageNumber * (pageNumber - 1),
       take: countPerPageNumber,
       include: {
         jobPost: true,

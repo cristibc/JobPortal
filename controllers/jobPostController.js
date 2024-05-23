@@ -323,6 +323,28 @@ const sortJobPostsBySalary = async (req, res) => {
   }
 };
 
+const getJobPostsByPageAndCount = async (req, res) => {
+  const { page, countPerPage } = req.params;
+  pageNumber = Number(page);
+  countPerPageNumber = Number(countPerPage);
+  try {
+    const jobPosts = await prisma.jobPost.findMany({
+      skip: countPerPageNumber * (pageNumber - 1),
+      take: countPerPageNumber,
+      include: {
+        company: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    res.status(200).json(jobPosts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   createJobPost,
   addOwnJobPost,
@@ -335,4 +357,5 @@ module.exports = {
   getJobPostsMatching,
   getJobPostsMatchingWithMinimumSalary,
   sortJobPostsBySalary,
+  getJobPostsByPageAndCount,
 };
