@@ -33,7 +33,7 @@ const loginSchema = Joi.object({
 });
 
 const companySchema = Joi.object({
-  name: Joi.string().alphanum().min(1).max(30).required(),
+  name: Joi.string().alphanum().allow(" ").min(1).max(30).required(),
 
   description: Joi.string().required().min(1).max(250).required(),
 
