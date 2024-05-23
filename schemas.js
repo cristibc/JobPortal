@@ -33,8 +33,7 @@ const loginSchema = Joi.object({
 });
 
 const companySchema = Joi.object({
-  name: Joi.string().alphanum().allow(" ").min(1).max(30).required(),
-
+  name: Joi.string().pattern(new RegExp('^[a-zA-Z0-9 ]*$')).min(1).max(30).required(),
   description: Joi.string().required().min(1).max(250).required(),
 
   // 2024-05-12T22:15:46.506+00:00
