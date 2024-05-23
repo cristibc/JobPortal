@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const jobPostController = require('../controllers/jobPostController');
-const auth = require('../middleware/authenticate');
+const jobPostController = require("../controllers/jobPostController");
+const auth = require("../middleware/authenticate");
+const validator = require("../middleware/validationMiddleware");
+const { valid } = require("joi");
 
 /**
  * @swagger
@@ -22,7 +24,7 @@ const auth = require('../middleware/authenticate');
  *       200:
  *         description: A list of job posts
  */
-router.get('/', auth.authenticateToken(), jobPostController.getJobPosts);
+router.get("/", auth.authenticateToken(), jobPostController.getJobPosts);
 
 /**
  * @swagger
@@ -57,7 +59,12 @@ router.get('/', auth.authenticateToken(), jobPostController.getJobPosts);
  *       200:
  *         description: Job post created
  */
-router.post('/', auth.authenticateToken('ADMIN'), jobPostController.createJobPost);
+router.post(
+  "/",
+  auth.authenticateToken("ADMIN"),
+  validator("createJobPost"),
+  jobPostController.createJobPost
+);
 
 /**
  * @swagger
@@ -90,7 +97,12 @@ router.post('/', auth.authenticateToken('ADMIN'), jobPostController.createJobPos
  *       200:
  *         description: Job post added
  */
-router.post('/addOwnJobPost', auth.authenticateToken('COMPANY'), jobPostController.addOwnJobPost);
+router.post(
+  "/addOwnJobPost",
+  auth.authenticateToken("COMPANY"),
+  validator("createOwnJobPost"),
+  jobPostController.addOwnJobPost
+);
 
 /**
  * @swagger
@@ -113,7 +125,11 @@ router.post('/addOwnJobPost', auth.authenticateToken('COMPANY'), jobPostControll
  *       404:
  *         description: Job post not found
  */
-router.get('/getJobPost/:id', auth.authenticateToken(), jobPostController.getJobPost);
+router.get(
+  "/getJobPost/:id",
+  auth.authenticateToken(),
+  jobPostController.getJobPost
+);
 
 /**
  * @swagger
@@ -157,7 +173,12 @@ router.get('/getJobPost/:id', auth.authenticateToken(), jobPostController.getJob
  *       404:
  *         description: Job post not found
  */
-router.put('/updateJobPost/:id', auth.authenticateToken(['ADMIN', 'COMPANY']), jobPostController.updateJobPost);
+router.put(
+  "/updateJobPost/:id",
+  auth.authenticateToken(["ADMIN", "COMPANY"]),
+  validator("updateJobPost"),
+  jobPostController.updateJobPost
+);
 
 /**
  * @swagger
@@ -199,7 +220,12 @@ router.put('/updateJobPost/:id', auth.authenticateToken(['ADMIN', 'COMPANY']), j
  *       404:
  *         description: Job post not found
  */
-router.put('/updateOwnJobPost/:id', auth.authenticateToken('COMPANY'), jobPostController.updateOwnJobPost);
+router.put(
+  "/updateOwnJobPost/:id",
+  auth.authenticateToken("COMPANY"),
+  validator("updateJobPost"),
+  jobPostController.updateOwnJobPost
+);
 
 /**
  * @swagger
@@ -222,7 +248,11 @@ router.put('/updateOwnJobPost/:id', auth.authenticateToken('COMPANY'), jobPostCo
  *       404:
  *         description: Job post not found
  */
-router.delete('/deleteJobPost/:id', auth.authenticateToken('ADMIN'), jobPostController.deleteJobPost);
+router.delete(
+  "/deleteJobPost/:id",
+  auth.authenticateToken("ADMIN"),
+  jobPostController.deleteJobPost
+);
 
 /**
  * @swagger
@@ -245,7 +275,11 @@ router.delete('/deleteJobPost/:id', auth.authenticateToken('ADMIN'), jobPostCont
  *       404:
  *         description: Job post not found
  */
-router.delete('/deleteOwnJobPost/:id', auth.authenticateToken('COMPANY'), jobPostController.deleteOwnJobPost);
+router.delete(
+  "/deleteOwnJobPost/:id",
+  auth.authenticateToken("COMPANY"),
+  jobPostController.deleteOwnJobPost
+);
 
 /**
  * @swagger
@@ -276,7 +310,12 @@ router.delete('/deleteOwnJobPost/:id', auth.authenticateToken('COMPANY'), jobPos
  *       200:
  *         description: Matching job posts
  */
-router.post('/getJobPostsMatching', auth.authenticateToken(), jobPostController.getJobPostsMatching);
+router.post(
+  "/getJobPostsMatching",
+  auth.authenticateToken(),
+  validator("getJobPostMatching"),
+  jobPostController.getJobPostsMatching
+);
 
 /**
  * @swagger
@@ -309,7 +348,12 @@ router.post('/getJobPostsMatching', auth.authenticateToken(), jobPostController.
  *       200:
  *         description: Matching job posts
  */
-router.post('/getJobPostsMatchingWithMinimumSalary', auth.authenticateToken(), jobPostController.getJobPostsMatchingWithMinimumSalary);
+router.post(
+  "/getJobPostsMatchingWithMinimumSalary",
+  auth.authenticateToken(),
+  validator("getJobPostMatchingMinimumSalary"),
+  jobPostController.getJobPostsMatchingWithMinimumSalary
+);
 
 /**
  * @swagger
@@ -335,6 +379,11 @@ router.post('/getJobPostsMatchingWithMinimumSalary', auth.authenticateToken(), j
  *       200:
  *         description: Sorted job posts
  */
-router.post('/sortJobPostsBySalary', auth.authenticateToken(), jobPostController.sortJobPostsBySalary);
+router.post(
+  "/sortJobPostsBySalary",
+  auth.authenticateToken(),
+  validator("getSortJobPosts"),
+  jobPostController.sortJobPostsBySalary
+);
 
 module.exports = router;

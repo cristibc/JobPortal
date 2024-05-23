@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const applicationController = require('../controllers/applicationController');
-const auth = require('../middleware/authenticate');
+const applicationController = require("../controllers/applicationController");
+const auth = require("../middleware/authenticate");
+const validator = require("../middleware/validationMiddleware");
 
 /**
  * @swagger
@@ -24,7 +25,11 @@ const auth = require('../middleware/authenticate');
  *       403:
  *         description: Unauthorized
  */
-router.get('/', auth.authenticateToken('ADMIN'), applicationController.getApplications); 
+router.get(
+  "/",
+  auth.authenticateToken("ADMIN"),
+  applicationController.getApplications
+);
 
 /**
  * @swagger
@@ -45,13 +50,21 @@ router.get('/', auth.authenticateToken('ADMIN'), applicationController.getApplic
  *                 type: string
  *               userId:
  *                 type: string
+ *             example:
+ *               jobPostId: "123"
+ *               userId: "456"
  *     responses:
  *       201:
  *         description: Application created
  *       401:
  *         description: Unauthorized
  */
-router.post('/', auth.authenticateToken('ADMIN'), applicationController.createApplication);
+router.post(
+  "/",
+  auth.authenticateToken("ADMIN"),
+  validator("createApplication"),
+  applicationController.createApplication
+);
 
 /**
  * @swagger
@@ -70,13 +83,20 @@ router.post('/', auth.authenticateToken('ADMIN'), applicationController.createAp
  *             properties:
  *               jobPostId:
  *                 type: string
+ *             example:
+ *               jobPostId: "123"
  *     responses:
  *       201:
  *         description: Application submitted
  *       401:
  *         description: Unauthorized
  */
-router.post('/applyAsUser', auth.authenticateToken('USER'), applicationController.applyAsUser);
+router.post(
+  "/applyAsUser",
+  auth.authenticateToken("USER"),
+  validator("applyAsUser"),
+  applicationController.applyAsUser
+);
 
 /**
  * @swagger
@@ -101,7 +121,11 @@ router.post('/applyAsUser', auth.authenticateToken('USER'), applicationControlle
  *       404:
  *         description: Application not found
  */
-router.get('/getApplication/:id', auth.authenticateToken('ADMIN'), applicationController.getApplication);
+router.get(
+  "/getApplication/:id",
+  auth.authenticateToken("ADMIN"),
+  applicationController.getApplication
+);
 
 /**
  * @swagger
@@ -117,7 +141,11 @@ router.get('/getApplication/:id', auth.authenticateToken('ADMIN'), applicationCo
  *       401:
  *         description: Unauthorized
  */
-router.get('/getOwnApplications', auth.authenticateToken('USER'), applicationController.getOwnApplications);
+router.get(
+  "/getOwnApplications",
+  auth.authenticateToken("USER"),
+  applicationController.getOwnApplications
+);
 
 /**
  * @swagger
@@ -145,6 +173,9 @@ router.get('/getOwnApplications', auth.authenticateToken('USER'), applicationCon
  *                 type: string
  *               userId:
  *                 type: string
+ *             example:
+ *               jobPostId: "123"
+ *               userId: "456"
  *     responses:
  *       200:
  *         description: Application updated
@@ -153,7 +184,12 @@ router.get('/getOwnApplications', auth.authenticateToken('USER'), applicationCon
  *       404:
  *         description: Application not found
  */
-router.put('/updateApplication/:id', auth.authenticateToken('ADMIN'), applicationController.updateApplication);
+router.put(
+  "/updateApplication/:id",
+  auth.authenticateToken("ADMIN"),
+  validator("updateApplication"),
+  applicationController.updateApplication
+);
 
 /**
  * @swagger
@@ -178,7 +214,11 @@ router.put('/updateApplication/:id', auth.authenticateToken('ADMIN'), applicatio
  *       404:
  *         description: Application not found
  */
-router.delete('/deleteApplication/:id', auth.authenticateToken('ADMIN'), applicationController.deleteApplication);
+router.delete(
+  "/deleteApplication/:id",
+  auth.authenticateToken("ADMIN"),
+  applicationController.deleteApplication
+);
 
 /**
  * @swagger
@@ -203,7 +243,11 @@ router.delete('/deleteApplication/:id', auth.authenticateToken('ADMIN'), applica
  *       404:
  *         description: Application not found
  */
-router.delete('/deleteOwnApplication/:id', auth.authenticateToken('USER'), applicationController.deleteOwnApplication);
+router.delete(
+  "/deleteOwnApplication/:id",
+  auth.authenticateToken("USER"),
+  applicationController.deleteOwnApplication
+);
 
 /**
  * @swagger
@@ -228,7 +272,40 @@ router.delete('/deleteOwnApplication/:id', auth.authenticateToken('USER'), appli
  *       404:
  *         description: Job post not found
  */
-router.get('/getApplicationsForJobPost/:id', auth.authenticateToken('ADMIN'), applicationController.getApplicationsForJobPost);
+router.get(
+  "/getApplicationsForJobPost/:id",
+  auth.authenticateToken("ADMIN"),
+  applicationController.getApplicationsForJobPost
+);
+
+/**
+ * @swagger
+ * /api/applications/getApplicationsForOwnJobPost/{id}:
+ *   get:
+ *     summary: Retrieve applications for a specific job post
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Job post ID
+ *     responses:
+ *       200:
+ *         description: A list of applications
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Job post not found
+ */
+router.get(
+  "/getApplicationsForOwnJobPost/:id",
+  auth.authenticateToken("COMPANY"),
+  applicationController.getApplicationsForOwnJobPost
+);
 
 /**
  * @swagger
@@ -248,17 +325,25 @@ router.get('/getApplicationsForJobPost/:id', auth.authenticateToken('ADMIN'), ap
  *               acceptedUsers:
  *                 type: array
  *                 items:
- *                      type: string
- *                      example: userId1, userId2
+ *                   type: string
+ *                   example: "userId1"
  *               jobPostId:
  *                 type: string
+ *             example:
+ *               acceptedUsers: ["userId1", "userId2"]
+ *               jobPostId: "123"
  *     responses:
  *       200:
  *         description: Applications accepted
  *       401:
  *         description: Unauthorized
  */
-router.post('/acceptApplicationsForJobPost', auth.authenticateToken('COMPANY'), applicationController.acceptApplicationsForJobPost);
+router.post(
+  "/acceptApplicationsForJobPost",
+  auth.authenticateToken("COMPANY"),
+  validator("acceptApplicationsForJobPost"),
+  applicationController.acceptApplicationsForJobPost
+);
 
 /**
  * @swagger
@@ -289,6 +374,10 @@ router.post('/acceptApplicationsForJobPost', auth.authenticateToken('COMPANY'), 
  *       403:
  *         description: Unauthorized
  */
-router.get('/getPage/:page/:countPerPage', auth.authenticateToken(['ADMIN']), applicationController.getApplicationsByPageAndCount);
+router.get(
+  "/getPage/:page/:countPerPage",
+  auth.authenticateToken(["ADMIN"]),
+  applicationController.getApplicationsByPageAndCount
+);
 
 module.exports = router;

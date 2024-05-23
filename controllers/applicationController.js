@@ -17,7 +17,7 @@ const createApplication = async (req, res) => {
         },
       },
     });
-    res.status(200).json({ message: application});
+    res.status(200).json({ message: application });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -183,13 +183,13 @@ const deleteOwnApplication = async (req, res) => {
   }
 };
 
-
 const getApplicationsForJobPost = async (req, res) => {
+  const { id } = req.params;
   try {
     const applications = await prisma.application.findMany({
       where: {
         jobPostId: {
-          equals: req.body.jobPostId,
+          equals: id,
         },
       },
       include: {
@@ -198,6 +198,48 @@ const getApplicationsForJobPost = async (req, res) => {
         user: true,
       },
     });
+    res.status(200).json(applications);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getApplicationsForOwnJobPost = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const applications = await prisma.application.findMany({
+      where: {
+        jobPostId: {
+          equals: id,
+        },
+        jobPost: {
+          company: {
+            is: {
+              createdById: req.user.id,
+            },
+          },
+        },
+      },
+      include: {
+        // Job Post info shouldn't be needed
+        // jobPost: true,
+        user: {
+          select: {
+            id: true,
+            email: true,
+            image: true,
+            cv: true,
+          },
+        },
+      },
+    });
+
+    if (applications.length === 0)
+      return res
+        .status(404)
+        .json({
+          message: "No applications found or job post does not belong to you",
+        });
     res.status(200).json(applications);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -219,8 +261,7 @@ const acceptApplicationsForJobPost = async (req, res) => {
             jobPostId: {
               equals: req.body.jobPostId,
             },
-            jobPost:
-            {
+            jobPost: {
               company: {
                 createdById: req.user.id,
               },
@@ -238,8 +279,7 @@ const acceptApplicationsForJobPost = async (req, res) => {
             jobPostId: {
               equals: req.body.jobPostId,
             },
-            jobPost:
-            {
+            jobPost: {
               company: {
                 createdById: req.user.id,
               },
@@ -255,11 +295,10 @@ const acceptApplicationsForJobPost = async (req, res) => {
           },
           where: {
             id: req.body.jobPostId,
-          },
-          jobPost:
-          {
             company: {
-              createdById: req.user.id,
+              is: {
+                createdById: req.user.id,
+              },
             },
           },
         }),
@@ -313,6 +352,7 @@ module.exports = {
   deleteApplication,
   deleteOwnApplication,
   getApplicationsForJobPost,
+  getApplicationsForOwnJobPost,
   acceptApplicationsForJobPost,
   getApplicationsByPageAndCount,
 };

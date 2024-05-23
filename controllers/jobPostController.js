@@ -134,7 +134,7 @@ const updateOwnJobPost = async (req, res) => {
         id: id,
         company: {
           createdById: req.user.id,
-        }
+        },
       },
     });
 
@@ -217,6 +217,9 @@ const getJobPostsMatching = async (req, res) => {
           {
             type: req.body.type,
           },
+          {
+            status: req.body.status,
+          },
         ],
       },
       include: {
@@ -254,6 +257,9 @@ const getJobPostsMatchingWithMinimumSalary = async (req, res) => {
             type: req.body.type,
           },
           {
+            status: req.body.status,
+          },
+          {
             salary: {
               gte: req.body.minimumSalary,
             },
@@ -273,11 +279,37 @@ const getJobPostsMatchingWithMinimumSalary = async (req, res) => {
 const sortJobPostsBySalary = async (req, res) => {
   try {
     const jobPosts = await prisma.jobPost.findMany({
-        where: {
-            salary:{
-                gte: req.body.minimumSalary
-            }
-        },
+      where: {
+        AND: [
+          {
+            title: {
+              contains: req.body.title,
+            },
+          },
+          {
+            location: req.body.location,
+          },
+          {
+            company: {
+              name: req.body.company,
+            },
+          },
+          {
+            experience: req.body.experience,
+          },
+          {
+            type: req.body.type,
+          },
+          {
+            status: req.body.status,
+          },
+          {
+            salary: {
+              gte: req.body.minimumSalary,
+            },
+          },
+        ],
+      },
       orderBy: {
         salary: req.body.order,
       },

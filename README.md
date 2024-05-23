@@ -11,8 +11,8 @@ NodeJS project that implements a REST API for a LinkedIn-like job posting and ap
 
 ### Installation steps
 
-1. Clone project locally
-2. Cd into directory and run ```npm install``` to install dependencies
+1. Clone the repo locally
+2. Cd into root directory and run ```npm install``` to install dependencies
 3. Create .env file in root directory with the properties:
 ```
 DATABASE_URL="yourMongoDBConnectString"
